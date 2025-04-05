@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title> 全国 34 地（含港澳）重要城市平均风速变化</title>
+  <style>
+    body, html { margin: 0; padding: 0; height: 100%; }
+    .header { 
+      background: #0079c1; 
+      color: white; 
+      padding: 10px; 
+      text-align: center;
+    }
+    .main { 
+      display: flex; 
+      height: calc(100% - 60px); 
+    }
+    #viewDiv { flex: 3; }
+    .basemap-panel { 
+      flex: 1; 
+      background: #f5f5f5; 
+      padding: 10px;
+    }
+  </style>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.32/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.32/"></script>
+</head>
+
+<body>
+  <div class="header">
+    <h2> 全国 34 地（含港澳）重要城市平均风速变化</h2>
+  </div>
+  
+  <div class="main">
+    <div id="viewDiv"></div>
+    <div class="basemap-panel">
+      <h3>底图库</h3>
+      <div id="basemapGallery"></div>
+    </div>
+  </div>
+
+  <script>
+    require([
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/widgets/Legend",
+      "esri/widgets/ScaleBar",
+      "esri/widgets/Search",
+      "esri/widgets/LayerList",
+      "esri/widgets/BasemapGallery",
+      "esri/layers/FeatureLayer"
+    ], function(
+      Map, MapView, Legend, ScaleBar, 
+      Search, LayerList, BasemapGallery, FeatureLayer
+    ) {
+      
+      // 1. 创建地图
+      const map = new Map({
+        basemap: "streets-vector"
+      });
+
+      // 2. 添加专题图层 - 世界主要城市
+      map.add(new FeatureLayer({
+       url: "https://www.geosceneonline.cn/server/rest/services/Hosted/逐年风速/FeatureServer"
+      }));
+
+      // 3. 创建视图
+      const view = new MapView({
+        container: "viewDiv",
+        map: map,
+        center: [104.1954, 35.8617],
+        zoom: 4
+      });
+
+      // 4. 添加微件
+      // 比例尺 - 添加更多配置选项
+      const scaleBar = new ScaleBar({
+        view: view,
+        unit: "metric",  // 使用公制单位(米/千米)
+        style: "line"    // 线条样式
+      });
+      view.ui.add(scaleBar, {
+        position: "bottom-left",
+        index: 0
+      });
+      
+      view.ui.add(new Legend({ view }), "top-right");
+      view.ui.add(new Search({ view }), "top-left");
+      view.ui.add(new LayerList({ view }), "top-right");
+      
+      // 5. 添加底图库
+     // 底图库 - 使用view.ui.add()方法
+     const gallery = new BasemapGallery({
+        view: view
+      });
+      
+      // 将底图库添加到指定的DOM元素中
+      gallery.container = "basemapGallery";
+      gallery.render();
+    });
+  </script>
+</body>
+</html>
